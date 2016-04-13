@@ -1,0 +1,23 @@
+{
+    "name": "logikostech/forms",
+    "description": "Form manager built on phalcon",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Todd Empcke",
+            "email": "tempcke@logikostech.net"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=5.4",
+        "ext-phalcon": "2.*",
+    },
+    "autoload": {
+        "psr-4": {
+            "Logikos\\Forms\\": "src/",
+            "Logikos\\Tests\\": "tests/"
+        }
+    }
+}
