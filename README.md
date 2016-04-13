@@ -1,5 +1,7 @@
-# forms
-Form manager built on phalcon
+# Logikos\Forms
+Form manager which extends Phalcon PHP
+
+Please note that this is **NOT** yet a stable repo.  Once a stable release is avaible I will create a version tag for it.
 
 ## Installation
 
@@ -43,7 +45,7 @@ git clone https://github.com/logikostech/forms.git
 
 ## Autoloading
 
-Add or register the following namespace strategy to your Phalcon\Loader:
+Add or register the following namespace strategy to your `Phalcon\Loader`:
 
 ```php
 
