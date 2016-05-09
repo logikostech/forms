@@ -60,4 +60,6 @@ $loader->register();
 
 ## Key features
 
+### Radioset [Element](https://github.com/logikostech/forms/blob/master/src/Element/Radioset.php) and [Tag](https://github.com/logikostech/forms/blob/master/src/Tag/Radioset.php)
+
 Added [Logikos\Forms\Element\Radioset](https://github.com/logikostech/forms/blob/master/src/Element/Radioset.php) which works like and extends [Phalcon\Forms\Element\Select](https://github.com/phalcon/cphalcon/blob/master/phalcon/forms/element/select.zep) and works the same way except that it outputs radio options instead of a select box.  Resulting radio tag option markup can be controlled by setting [Logikos\Forms\Tag\Radioset](https://github.com/logikostech/forms/blob/master/src/Tag/Radioset.php)::useRadioTemplate()
