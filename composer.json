@@ -9,7 +9,8 @@
         "plugin",
         "logikostech",
         "logikos",
-        "forms"
+        "forms",
+        "radioset"
     ],
     "authors": [{
         "name": "Todd Empcke",
