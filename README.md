@@ -1,7 +1,7 @@
 # Logikos\Forms
 Form manager which extends Phalcon PHP
 
-Please note that this is **NOT** yet a stable repo.  Once a stable release is avaible I will create a version tag for it.
+Please note that this is **NOT** yet a stable repo.  Once a stable release is available I will create a version tag for it.
 
 ## Installation
 
@@ -57,3 +57,7 @@ $loader->registerNamespaces([
 
 $loader->register();
 ```
+
+## Key features
+
+Added [Logikos\Forms\Element\Radioset](https://github.com/logikostech/forms/blob/master/src/Element/Radioset.php) which works like and extends [Phalcon\Forms\Element\Select](https://github.com/phalcon/cphalcon/blob/master/phalcon/forms/element/select.zep) and works the same way except that it outputs radio options instead of a select box.  Resulting radio tag option markup can be controlled by setting [Logikos\Forms\Tag\Radioset](https://github.com/logikostech/forms/blob/master/src/Tag/Radioset.php)::useRadioTemplate()
