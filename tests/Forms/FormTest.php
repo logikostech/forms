@@ -23,14 +23,17 @@ class FormTest extends \PHPUnit_Framework_TestCase {
   protected $valid_methods = ['POST','GET'];
 
   public static function setUpBeforeClass() {
-    define('BASE_DIR',realpath(__DIR__.'/../../'));
-    define('BASE_TEST_DIR',BASE_DIR.'/tests');
-    self::$viewsdir = realpath(BASE_TEST_DIR.'/views/').'/';
-    include_once BASE_DIR."/vendor/autoload.php";
+    $basedir = realpath(__DIR__.'/../../');
+    $testdir = $basedir.'/tests';
+    self::$viewsdir = realpath($testdir.'/views/').'/';
+    include_once $basedir."/vendor/autoload.php";
     
     $di = new DI();
     $di->set('form',"Logikos\Forms\Form");
     static::$di = $di;
+  }
+  public function setUp() {
+    $this->form = static::$di->get('form');
   }
   public static function phView() {
     static $view;
@@ -47,9 +50,6 @@ class FormTest extends \PHPUnit_Framework_TestCase {
       $view->setViewsDir(static::$viewsdir);
     }
     return $view;
-  }
-  public function setUp() {
-    $this->form = static::$di->get('form');
   }
   public function methods() {
     static $methods = [];

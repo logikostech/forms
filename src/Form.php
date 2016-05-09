@@ -55,6 +55,10 @@ class Form extends phForm {
     $this->_decoration_template = $path;
   }
   
+  /**
+   * This likly is not needed if you have this class loaded with Phalcon\Di
+   * @param ViewBaseInterface $view
+   */
   public function setView(ViewBaseInterface $view) {
     $this->view = $view;
   }
