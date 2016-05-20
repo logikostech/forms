@@ -15,7 +15,23 @@ class Form extends phForm {
   protected $_method_element_name = '_method';
   protected $_valid_methods = ['POST','GET'];
   protected $_method = 'POST';
-  protected $_decoration_template;
+  
+  private $_defaultUserOptions = [
+      'entity_class'        => '\\stdClass',
+      'decoration_template' => null
+  ];
+  
+  public function __construct($entity=null,$userOptions=null) {
+    parent::__construct($entity,$userOptions);
+    $this->_setDefaultUserOptions($this->_defaultUserOptions);
+  }
+
+  protected function _setDefaultUserOptions($options) {
+    foreach ($options as $option=>$value) {
+      if (!$this->getUserOption($option))
+        $this->setUserOption($option,$value);
+    }
+  }
   
   public function isValidMethod($method) {
     return in_array($method,$this->_valid_methods);
@@ -52,9 +68,6 @@ class Form extends phForm {
     return $this->getElements();
   }
   
-  public function setDecorationTemplate($path) {
-    $this->_decoration_template = $path;
-  }
   
   /**
    * This likly is not needed if you have this class loaded with Phalcon\Di
@@ -69,27 +82,30 @@ class Form extends phForm {
     return $this->getDI()->get('view');
   }
   public function renderDecorated($name, $attributes=null, $template=null) {
-    $template = $template ?: $this->_decoration_template;
+    $template = $template ?: $this->getUserOption('decoration_template');
     
     if (!$template)
       return $this->render($name,$attributes);
     
-    $element  = $this->get($name);
-    $messages = $this->getMessagesFor($element->getName()) ?: [];
     $output   = $this->getPartialFromView(
         $template,
-        [
-            'form'     => $this,
-            'element'  => $element,
-            'name'     => $name,
-            'type'     => $this->getElementType($element),
-            'label'    => $this->getLabel($name),
-            'messages' => $messages
-        ]
+        $this->getViewArgs($name)
     );
     return $output;
   }
-
+  public function getViewArgs($name, $addargs=[]) {
+    $element  = $this->get($name);
+    $messages = $this->getMessagesFor($element->getName()) ?: [];
+    
+    return array_merge([
+        'form'     => $this,
+        'element'  => $element,
+        'name'     => $name,
+        'type'     => $this->getElementType($element),
+        'label'    => $this->getLabel($name),
+        'messages' => $messages
+    ],$addargs);
+  }
   public function getElementType($element) {
     return strtolower((new \ReflectionClass($element))->getShortName());
   }
@@ -97,5 +113,30 @@ class Form extends phForm {
     ob_start();
     $this->getView()->partial($partialPath,$params);
     return ob_get_clean();
+  }
+
+  public function appendMessage($name,$message) {
+    $element = $this->get($name);
+    $element->appendMessage(new \Phalcon\Validation\Message($message));
+    $this->_messages[$name] = $element->getMessages();
+  }
+  
+  public function import($import,$whitelist=null) {
+    if (is_null($whitelist))
+      $whitelist = $this->getElementNames();
+    
+    if (!is_object($this->getEntity())) {
+      $entity_class = $this->getUserOption('entity_class');
+      $this->setEntity(new $entity_class);
+    }
+    
+    $this->bind($import,$this->getEntity(),$whitelist);
+  }
+  
+  public function getElementNames() {
+    $names=[];
+    foreach($this->getElements() as $element)
+      $names[] = $element->getName();
+    return $Names;
   }
 }
