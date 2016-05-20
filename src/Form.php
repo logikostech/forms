@@ -7,6 +7,7 @@ use Phalcon\Forms\ElementInterface;
 use Phalcon\Forms\Element\Hidden;
 use Phalcon\Mvc\ViewInterface;
 use Phalcon\Mvc\ViewBaseInterface;
+use Phalcon\Forms\Element;
 
 class Form extends phForm {
   
@@ -75,18 +76,26 @@ class Form extends phForm {
     
     $element  = $this->get($name);
     $messages = $this->getMessagesFor($element->getName()) ?: [];
-    
-    ob_start();
-    $this->getView()->partial(
+    $output   = $this->getPartialFromView(
         $template,
         [
             'form'     => $this,
             'element'  => $element,
+            'name'     => $name,
+            'type'     => $this->getElementType($element),
+            'label'    => $this->getLabel($name),
             'messages' => $messages
         ]
     );
-    $output = ob_get_contents();
-    ob_end_clean();
     return $output;
+  }
+
+  public function getElementType($element) {
+    return strtolower((new \ReflectionClass($element))->getShortName());
+  }
+  protected function getPartialFromView($partialPath, $params = null) {
+    ob_start();
+    $this->getView()->partial($partialPath,$params);
+    return ob_get_clean();
   }
 }
