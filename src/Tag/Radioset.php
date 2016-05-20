@@ -6,6 +6,7 @@ use Phalcon\Tag\Exception;
 use Phalcon\Mvc\Model\ResultsetInterface;
 use Phalcon\Mvc\ModelInterface;
 use Phalcon\Tag;
+use Phalcon\Forms\Element\Radio;
 
 abstract class Radioset extends Tag {
   
@@ -30,6 +31,7 @@ abstract class Radioset extends Tag {
    * @param string $data
    */
   public static function RadiosetField($params, $data=null) {
+    
     if (!is_array($params))
       $params = ['name'=>$params];
     
@@ -99,7 +101,7 @@ abstract class Radioset extends Tag {
       ? static::getValue($params['name'],$params) // will use $params['vaue'] if set
       : null;
     
-    $cb = (!empty($params[2]) && is_callabel($params[2]))
+    $cb = (!empty($params[2]) && is_callable($params[2]))
         ? $params[2]
         : [static::class,'radioRender'];
     
@@ -111,23 +113,23 @@ abstract class Radioset extends Tag {
     
     return implode("",$radio);
   }
-  
-  public static function radioRender($radio_name,$radio_value,$radio_label,$curent_value) {
+
+  public static function radioRender($name,$value,$label,$curent_value) {
     
     $attr = [
         'type'  => 'radio',
-        'name'  => $radio_name,
-        'value' => $radio_value
+        'name'  => $name,
+        'value' => $value
     ];
     
-    if (!is_null($curent_value) && $radio_value == $curent_value)
+    if (!is_null($curent_value) && $value == $curent_value)
       $attr['checked']='checked';
     
     $attributes = trim(self::renderAttributes('', $attr));
     $radio = "<input {$attributes} />";
     $markup = str_replace(
         ['{{name}}','{{attributes}}','{{label}}'],
-        [$radio_name,$attributes,$radio_label],
+        [$name,$attributes,$label],
         self::$radio_template
     );
     return $markup;
