@@ -56,8 +56,7 @@ class Radioset extends Select implements ElementInterface {
     
     $radio->setDefault($curent_value);
     
-    $view = $this->getView();
-    $view->partial(
+    return $this->getPartialFromView(
         $this->_radiotemplate,
         [
             'form'    => $this->getForm(),
@@ -79,5 +78,10 @@ class Radioset extends Select implements ElementInterface {
     if (isset($this->view) && $this->view instanceof ViewBaseInterface)
       return $this->view;
     return $form->getDI()->get('view');
+  }
+  protected function getPartialFromView($partialPath, $params = null) {
+    ob_start();
+    $this->getView()->partial($partialPath,$params);
+    return ob_get_clean();
   }
 }
