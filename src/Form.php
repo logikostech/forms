@@ -92,7 +92,7 @@ class Form extends phForm {
     $elements = $this->getElements();
     if ($elements) {
       foreach($this->getElements() as $element) {
-        if ($this->getElementType($element))
+        if ($this->getElementType($element) == 'hidden')
           $tags[] = $element->render();
       }
     }
