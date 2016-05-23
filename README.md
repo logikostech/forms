@@ -48,7 +48,6 @@ git clone https://github.com/logikostech/forms.git
 Add or register the following namespace strategy to your `Phalcon\Loader`:
 
 ```php
-
 $loader = new Phalcon\Loader();
 
 $loader->registerNamespaces([
