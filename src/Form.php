@@ -7,6 +7,7 @@ use Phalcon\Forms\ElementInterface;
 use Phalcon\Forms\Element\Hidden;
 use Phalcon\Mvc\ViewInterface;
 use Phalcon\Mvc\ViewBaseInterface;
+use Phalcon\Tag;
 
 class Form extends phForm {
   
@@ -15,6 +16,9 @@ class Form extends phForm {
   protected $_valid_methods = ['POST','GET'];
   protected $_method = 'POST';
   protected $_decoration_template;
+  
+  protected $_attributes = [];
+  
   
   public function isValidMethod($method) {
     return in_array($method,$this->_valid_methods);
@@ -30,6 +34,8 @@ class Form extends phForm {
       $element->setAttribute('value', $method);
       $this->add($element);
     }
+    
+    $this->setAttribute('data-method',$method);
     
     if ($this->isValidMethod($method))
       $this->_method = $method;
@@ -47,6 +53,43 @@ class Form extends phForm {
         $method = $v;
     return $method;
   }
+  
+  public function getAction() {
+    $requri = isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:'';
+    return parent::getAction() ?: $requri;
+  }
+  
+  public function start(array $attributes=[]) {
+    $attributes = array_merge(
+        $this->getAttributes(),
+        $attributes
+    );
+    $tags = array();
+    $tags[] = Tag::form($attributes);
+    
+    foreach($this->getElements() as $element) {
+      
+    }
+    
+    return implode("",$tags);
+  }
+  public function end() {
+    return '</form>';
+  }
+  
+  public function setAttribute($attribute, $value) {
+    $this->_attributes[$attribute] = $value;
+    return $this;
+  }
+  public function getAttribute($attribute, $defaultValue=null) {
+    return isset($this->_attributes[$attribute])
+        ? $this->_attributes[$attribute]
+        : $defaultValue;
+  }
+  public function getAttributes() {
+    return $this->_attributes;
+  }
+  
   public function fieldlist() {
     return $this->getElements();
   }

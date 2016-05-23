@@ -10,6 +10,7 @@ use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Phalcon\Forms\Element;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Simple as SimpleView;
+use Phalcon\Forms\Element\Hidden;
 
 class FormTest extends \PHPUnit_Framework_TestCase {
   static $di;
@@ -35,29 +36,54 @@ class FormTest extends \PHPUnit_Framework_TestCase {
   public function setUp() {
     $this->form = static::$di->get('form');
   }
-  public static function phView() {
-    static $view;
-    if (!$view) {
-      $view = new View();
-      $view->setViewsDir(static::$viewsdir);
+  
+
+  # TEST Form Tag Attributes
+  
+  public function testCanSetandGetFormTagAttribute() {
+    $attr  = (object) ['name'=>'data-a','value'=>'abc'];
+    $this->form->setAttribute($attr->name,$attr->value);
+    $this->assertEquals(
+        $attr->value,
+        $this->form->getAttribute($attr->name)
+    );
+  }
+  public function testFormAttributesViaSetAttributeMethod() {
+    $attr  = (object) ['name'=>'data-foo','value'=>'bar'];
+    $this->form->setAttribute($attr->name,$attr->value);
+    
+    $this->assertNodeAttributeValue(
+        $this->getFormNode(), 
+        $attr->name, 
+        $attr->value
+    );
+  }
+  public function testFormAttributesViaStartMethod() {
+    $attr  = (object) ['name'=>'data-foo','value'=>'bar2'];
+    
+    $this->assertNodeAttributeValue(
+        $this->getFormNode([$attr->name=>$attr->value]), 
+        $attr->name, 
+        $attr->value
+    );
+  }
+  
+  public function testFormStartMethodIncludesHidenElements() {
+    $element = new Hidden('foo');
+    $this->form->add($element);
+    $form = $this->getFormNode();
+    $xpath = new \DOMXPath($form->ownerDocument);
+    $query='./input[@type="hidden" and @name="foo"]';
+    $hiddeninputs = $xpath->query($query,$form);
+    var_dump($form->ownerDocument->saveHTML(), $hiddeninputs);
+    foreach($hiddeninputs as $input) {
+      
     }
-    return $view;
   }
-  public static function phSimpleView() {
-    static $view;
-    if (!$view) {
-      $view = new SimpleView();
-      $view->setViewsDir(static::$viewsdir);
-    }
-    return $view;
-  }
-  public function methods() {
-    static $methods = [];
-    if (!count($methods))
-      foreach ($this->methods as $method)
-        $methods[] = [$method];
-    return $methods;
-  }
+  
+  
+  # TEST Form Methods (POST, GET, PUT, PATCH etc.)
+  
   public function testIsValidMethod() {
     foreach ($this->methods as $method) {
       if (in_array($method,$this->valid_methods))
@@ -82,6 +108,9 @@ class FormTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals('POST',$this->form->getMethod(false));
   }
   
+  
+  
+  
   public function testFieldList() {
     $this->form->add(new Text('txtfld'));
     $this->form->add(new TextArea('txtarea'));
@@ -104,5 +133,50 @@ class FormTest extends \PHPUnit_Framework_TestCase {
     $this->form->setDecorationTemplate('template/foo');
     $output = $this->form->renderDecorated('test');
     $this->assertEquals('foobar',$output);
+  }
+  
+
+  # Data Providers
+  public function methods() {
+    static $methods = [];
+    if (!count($methods))
+      foreach ($this->methods as $method)
+        $methods[] = [$method];
+    return $methods;
+  }
+  
+  
+  # Helpers
+  protected function assertNodeAttributeValue(\DOMNode $node,$attribute,$value) {
+    $this->assertEquals(
+        $value,
+        $node->attributes->getNamedItem($attribute)->nodeValue
+    );
+  }
+  
+  protected function getFormNode($attribs=[]) {
+    $start = $this->form->start($attribs);
+    $end   = $this->form->end();
+    $html  = "<html><body>%s</body></html>";
+    $doc   = new \DOMDocument();
+    $doc->loadHTML(sprintf($html,$start.$end));
+    return $doc->getElementsByTagName('form')->item(0);
+  }
+
+  protected static function phView() {
+    static $view;
+    if (!$view) {
+      $view = new View();
+      $view->setViewsDir(static::$viewsdir);
+    }
+    return $view;
+  }
+  protected static function phSimpleView() {
+    static $view;
+    if (!$view) {
+      $view = new SimpleView();
+      $view->setViewsDir(static::$viewsdir);
+    }
+    return $view;
   }
 }
