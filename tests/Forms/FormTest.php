@@ -58,6 +58,8 @@ class FormTest extends \PHPUnit_Framework_TestCase {
         $methods[] = [$method];
     return $methods;
   }
+  
+  
   public function testIsValidMethod() {
     foreach ($this->methods as $method) {
       if (in_array($method,$this->valid_methods))
@@ -81,6 +83,8 @@ class FormTest extends \PHPUnit_Framework_TestCase {
     $this->form->setMethod('PATCH');
     $this->assertEquals('POST',$this->form->getMethod(false));
   }
+  
+
   
   public function testFieldList() {
     $this->form->add(new Text('txtfld'));

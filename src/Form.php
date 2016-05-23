@@ -33,6 +33,8 @@ class Form extends phForm {
     }
   }
   
+  
+  
   public function isValidMethod($method) {
     return in_array($method,$this->_valid_methods);
   }
@@ -107,6 +109,8 @@ class Form extends phForm {
     ],$addargs);
   }
   public function getElementType($element) {
+    if (is_string($element))
+      $element = $this->get($element);
     return strtolower((new \ReflectionClass($element))->getShortName());
   }
   protected function getPartialFromView($partialPath, $params = null) {
@@ -137,6 +141,6 @@ class Form extends phForm {
     $names=[];
     foreach($this->getElements() as $element)
       $names[] = $element->getName();
-    return $Names;
+    return $names;
   }
 }
