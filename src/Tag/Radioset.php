@@ -3,17 +3,17 @@
 namespace Logikos\Forms\Tag;
 
 use Phalcon\Tag\Exception;
-use Phalcon\Tag as BaseTag;
 use Phalcon\Mvc\Model\ResultsetInterface;
 use Phalcon\Mvc\ModelInterface;
 use Phalcon\Tag;
+use Phalcon\Forms\Element\Radio;
 
 abstract class Radioset extends Tag {
   
   protected static $radio_template = '
     <label class="Radioset-item">
       <input {{attributes}} class="Radioset-radio Radioset-radio-{{name}}" />
-      <span class="Radioset-label">{{label}}</span>
+      <span class="Radioset-item-label">{{label}}</span>
     </label>
   ';
   
@@ -31,11 +31,15 @@ abstract class Radioset extends Tag {
    * @param string $data
    */
   public static function RadiosetField($params, $data=null) {
+    
     if (!is_array($params))
       $params = ['name'=>$params];
     
+    if (empty($params['name']) && !empty($params[0]))
+      $params['name'] = $params[0];
+    
     if (empty($params['name']))
-      $params['name'] = empty($params[0]) ? null : $params[0];
+      throw new Exception("name is required for radioset");
     
     if (!$data && !empty($params[1]))
       $data = $params[1];
@@ -58,21 +62,22 @@ abstract class Radioset extends Tag {
     
   }
   protected static function _buildDataFromObject($resultset,$params=null) {
-    
+
     $using = isset($params['using']) ? $params['using'] : static::$defaultUsing;
-    
-    if (!$using || !is_array($using) || !count($using) != 2)
+
+    if (!$using || !is_array($using) || count($using) != 2)
       throw new Exception("Parameter 'using' must be an array with two values");
     
     list($idcol,$txtcol) = $using;
     
     $data = [];
     foreach ($resultset as $row) {
+      
       if (method_exists($row,'readAttribute')) {
         $data[$row->readAttribute($idcol)] = $row->readAttribute($txtcol);
       }
       elseif (method_exists($row,$v='get'.$idcol) && method_exists($row,$t='get'.$txtcol)) {
-        $data[$row->$v()] = $row->$t();
+        $data[$row->{$v}()] = $row->{$t}();
       }
       else {
         $data[$row->$idcol] = $row->$txtcol;
@@ -90,40 +95,53 @@ abstract class Radioset extends Tag {
     if (!is_array($data))
       throw new Exception("Invalid data provided to Radioset Helper");
     
+    self::_autoCheckIfOnlyOneOption($params, $data);
+    
     $value   = $params['name']
-      ? BaseTag::getValue($params['name'],$params) // will use $params['vaue'] if set
+      ? static::getValue($params['name'],$params) // will use $params['vaue'] if set
       : null;
     
-    $cb = (!empty($params[2]) && is_callabel($params[2]))
+    $cb = (!empty($params[2]) && is_callable($params[2]))
         ? $params[2]
         : [static::class,'radioRender'];
     
     $radio = [];
+    
     foreach ($data as $radio_value=>$radio_label) {
       $radio[] = call_user_func($cb,$params['name'],$radio_value,$radio_label,$value);
     }
     
     return implode("",$radio);
   }
-  
-  public static function radioRender($radio_name,$radio_value,$radio_label,$curent_value) {
+
+  public static function radioRender($name,$value,$label,$curent_value) {
     
     $attr = [
         'type'  => 'radio',
-        'name'  => $radio_name,
-        'value' => $radio_value
+        'name'  => $name,
+        'value' => $value
     ];
     
-    if (!is_null($curent_value) && $radio_value == $curent_value)
+    if (!is_null($curent_value) && $value == $curent_value)
       $attr['checked']='checked';
     
     $attributes = trim(self::renderAttributes('', $attr));
     $radio = "<input {$attributes} />";
     $markup = str_replace(
         ['{{name}}','{{attributes}}','{{label}}'],
-        [$radio_name,$attributes,$radio_label],
+        [$name,$attributes,$label],
         self::$radio_template
     );
     return $markup;
+  }
+  
+  public static function getValue($name,$params=null) {
+    return parent::getValue($name,$params);
+  }
+  
+
+  protected static function _autoCheckIfOnlyOneOption($params, $data) {
+    if (count($data) === 1)
+      self::setDefault($params['name'], array_keys($data)[0]);
   }
 }
