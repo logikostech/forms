@@ -48,10 +48,10 @@ class FormTest extends \PHPUnit_Framework_TestCase {
         $this->form->getAttribute($attr->name)
     );
   }
+  
   public function testFormAttributesViaSetAttributeMethod() {
     $attr  = (object) ['name'=>'data-foo','value'=>'bar'];
     $this->form->setAttribute($attr->name,$attr->value);
-    
     $this->assertNodeAttributeValue(
         $this->getFormNode(), 
         $attr->name, 
@@ -67,20 +67,50 @@ class FormTest extends \PHPUnit_Framework_TestCase {
         $attr->value
     );
   }
-  
+
   public function testFormStartMethodIncludesHidenElements() {
-    $element = new Hidden('foo');
+    $attr    = (object) ['name'=>'foo','value'=>'bar'];
+    $element = new Hidden($attr->name);
+    //$element->setAttribute('value',$attr->value);
+    //$element->setDefault($attr->value);
     $this->form->add($element);
-    $form = $this->getFormNode();
-    $xpath = new \DOMXPath($form->ownerDocument);
-    $query='./input[@type="hidden" and @name="foo"]';
-    $hiddeninputs = $xpath->query($query,$form);
-    var_dump($form->ownerDocument->saveHTML(), $hiddeninputs);
-    foreach($hiddeninputs as $input) {
-      
-    }
+    
+    $elementNode = $this->findFirstInNode(
+        $this->getFormNode(),
+        './input[@type="hidden" and @name="'.$attr->name.'"]'
+    );
+    
+    $this->assertInstanceOf('DOMNode', $elementNode);
+  }
+  public function testFormImportData() {
+    $attr    = (object) ['name'=>'foo','value'=>'bar'];
+    $this->form
+      ->add(new Hidden($attr->name))
+      ->import([$attr->name=>$attr->value]);
+    
+    $elementNode = $this->findFirstInNode(
+        $this->getFormNode(),
+        './input[@type="hidden" and @name="'.$attr->name.'"]'
+    );
+    $this->assertNodeAttributeValue(
+        $elementNode,
+        'value',
+        $attr->value,
+        'testing form->import()'
+    );
   }
   
+  public function testAddElementWithLabel() {
+    $label = 'First Name';
+    $this->form->addElement(
+        new Text('fname'),
+        ['data-foo'=>'bar'],
+        $label
+    );
+    $element = $this->form->get('fname');
+    $this->assertEquals($label, $element->getLabel());
+    $this->assertEquals('bar',$element->getAttribute('data-foo'));
+  }
   
   # TEST Form Methods (POST, GET, PUT, PATCH etc.)
   
@@ -135,6 +165,13 @@ class FormTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals('foobar',$output);
   }
   
+  
+  
+  
+  
+  
+  
+  
 
   # Data Providers
   public function methods() {
@@ -147,10 +184,13 @@ class FormTest extends \PHPUnit_Framework_TestCase {
   
   
   # Helpers
-  protected function assertNodeAttributeValue(\DOMNode $node,$attribute,$value) {
+  protected function assertNodeAttributeValue(\DOMNode $node,$attribute,$value,$message=null) {
+    $attribute = $node->attributes->getNamedItem($attribute);
+    $this->assertInstanceOf('DOMAttr', $attribute, 'Node attribute not defined');
     $this->assertEquals(
         $value,
-        $node->attributes->getNamedItem($attribute)->nodeValue
+        $attribute->nodeValue,
+        $message
     );
   }
   
@@ -178,5 +218,29 @@ class FormTest extends \PHPUnit_Framework_TestCase {
       $view->setViewsDir(static::$viewsdir);
     }
     return $view;
+  }
+  protected function dumpnode($node) {
+    $markup = $node->ownerDocument->saveHTML();
+    var_dump($markup);
+  }
+
+  protected function findFirstInNode(\DOMNode $node, $query) {
+    if (is_array($query))
+      $query = $this->buildDomQuery($query[0], array_slice($attr,-1));
+    
+    $xpath   = new \DOMXPath($node->ownerDocument);
+    $nodes   = $xpath->query($query,$node);
+    $this->assertEquals(1, $nodes->length, 'No matching nodes found');
+    return $nodes->item(0);
+  }
+  
+  protected function buildDomQuery($tag,array $attr) {
+    $attr = [];
+    foreach($attributes as $k=>$v)
+      $attr[] = sprintf('@%s="%s"',$k,$v);
+
+    $query = sprintf("./%s[%s]",$tag,explode($attr,' and '));
+    return $query;
+    $example = './input[@type="hidden" and @name="'.$attr->name.'"]';
   }
 }

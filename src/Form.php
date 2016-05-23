@@ -16,6 +16,7 @@ class Form extends phForm {
   protected $_method_element_name = '_method';
   protected $_valid_methods = ['POST','GET'];
   protected $_method = 'POST';
+  protected $_attributes = [];
   
   private $_defaultUserOptions = [
       'entity_class'        => '\\stdClass',
@@ -33,10 +34,12 @@ class Form extends phForm {
         $this->setUserOption($option,$value);
     }
   }
+  public function setDecorationTemplate($template) {
+    $this->setUserOption('decoration_template',$template);
+  }
   
   
   
-  protected $_attributes = [];
   
   
   public function isValidMethod($method) {
@@ -86,8 +89,12 @@ class Form extends phForm {
     $tags = array();
     $tags[] = Tag::form($attributes);
     
-    foreach($this->getElements() as $element) {
-      
+    $elements = $this->getElements();
+    if ($elements) {
+      foreach($this->getElements() as $element) {
+        if ($this->getElementType($element))
+          $tags[] = $element->render();
+      }
     }
     
     return implode("",$tags);
@@ -186,4 +193,13 @@ class Form extends phForm {
       $names[] = $element->getName();
     return $names;
   }
+  
+  public function addElement(ElementInterface $element,$attributes,$label) {
+    if (!isset($attributes['id']))
+      $attributes['id'] = null;
+    $element->setAttributes($attributes);
+    $element->setLabel($label);
+    $this->add($element);
+  }
+  
 }
