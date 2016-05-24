@@ -189,8 +189,10 @@ class Form extends phForm {
   
   public function getElementNames() {
     $names=[];
-    foreach($this->getElements() as $element)
-      $names[] = $element->getName();
+    if ($this->getElements()) {
+      foreach($this->getElements() as $element)
+        $names[] = $element->getName();
+    }
     return $names;
   }
   
