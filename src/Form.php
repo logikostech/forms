@@ -17,6 +17,7 @@ class Form extends phForm {
   protected $_valid_methods = ['POST','GET'];
   protected $_method = 'POST';
   protected $_attributes = [];
+  protected $_formTagClass = [];
   
   private $_defaultUserOptions = [
       'entity_class'        => '\\stdClass',
@@ -38,8 +39,10 @@ class Form extends phForm {
     $this->setUserOption('decoration_template',$template);
   }
   
-  
-  
+  public function addClass($class) {
+    if (!in_array($class,$this->_formTagClass))
+      $this->_formTagClass[] = $class;
+  }
   
   
   public function isValidMethod($method) {
@@ -82,12 +85,11 @@ class Form extends phForm {
   }
   
   public function start(array $attributes=[]) {
-    $attributes = array_merge(
-        $this->getAttributes(),
-        $attributes
-    );
+    $this->setAttributes($attributes);
+    
     $tags = array();
-    $tags[] = Tag::form($attributes);
+
+    $tags[] = Tag::form($this->getAttributes());
     
     $elements = $this->getElements();
     if ($elements) {
@@ -112,8 +114,29 @@ class Form extends phForm {
         ? $this->_attributes[$attribute]
         : $defaultValue;
   }
+  public function setAttributes(array $append=null) {
+    if (is_array($append) && count($append)) {
+      foreach($append as $k=>$v) {
+        $this->setAttribute($k, $v);
+      }
+    }
+  }
   public function getAttributes() {
-    return $this->_attributes;
+    $attrs = $this->_attributes;
+    
+    if (empty($attrs['action']) && !empty($this->getAction()))
+      $attrs['action'] = $this->getAction();
+    
+    if (!empty($attrs['class'])) {
+      foreach(explode(' ',$attrs['class']) as $v)
+        $this->addClass($v);
+    }
+    
+    if (count($this->_formTagClass)) {
+      $attrs['class'] = implode(' ',$this->_formTagClass);
+    }
+      
+    return $attrs;
   }
   
   public function fieldlist() {

@@ -31,6 +31,11 @@ class FormTest extends \PHPUnit_Framework_TestCase {
     
     $di = new DI();
     $di->set('form',"Logikos\Forms\Form");
+    $di->set('url',function(){
+      $url = new \Phalcon\Mvc\Url();
+      $url->setBaseUri('/');
+      return $url;
+    });
     static::$di = $di;
   }
   public function setUp() {
@@ -48,7 +53,34 @@ class FormTest extends \PHPUnit_Framework_TestCase {
         $this->form->getAttribute($attr->name)
     );
   }
-  
+
+  public function testFormActionAttributeFromRequestUri() {
+    $action = $_SERVER['REQUEST_URI'] = '/foo/bar/?test=1&blah';
+    $this->assertNodeAttributeValue(
+        $this->getFormNode(), 
+        'action', 
+        $action
+    );
+  }
+  public function testFormActionAttributeFromSetActionMethod() {
+    $action = '/foo/bar/?test=2&blah';
+    $this->form->setAction($action);
+    $this->assertNodeAttributeValue(
+        $this->getFormNode(), 
+        'action', 
+        $action
+    );
+  }
+  public function testCanAddAndAppendClassesToForm() {
+    $class1 = 'foo';
+    $class2 = 'bar';
+    $this->form->addClass($class1);
+    $node   = $this->getFormNode(['class'=>$class2]);
+    $value  = $this->getNodeAttributeValue($node, 'class');
+    $list   = explode(' ',$value);
+    $this->assertContains($class1, $list, 'added via addClass method');
+    $this->assertContains($class2, $list, 'added via start() attribute');
+  }
   public function testFormAttributesViaSetAttributeMethod() {
     $attr  = (object) ['name'=>'data-foo','value'=>'bar'];
     $this->form->setAttribute($attr->name,$attr->value);
@@ -172,6 +204,7 @@ class FormTest extends \PHPUnit_Framework_TestCase {
   
   
   
+  
 
   # Data Providers
   public function methods() {
@@ -185,13 +218,19 @@ class FormTest extends \PHPUnit_Framework_TestCase {
   
   # Helpers
   protected function assertNodeAttributeValue(\DOMNode $node,$attribute,$value,$message=null) {
-    $attribute = $node->attributes->getNamedItem($attribute);
-    $this->assertInstanceOf('DOMAttr', $attribute, 'Node attribute not defined');
+    $attr = $node->attributes->getNamedItem($attribute);
+    $this->assertInstanceOf('DOMAttr', $attr, "Node attribute '{$attribute}' not defined");
     $this->assertEquals(
         $value,
-        $attribute->nodeValue,
+        $attr->nodeValue,
         $message
     );
+  }
+  
+  protected function getNodeAttributeValue(\DOMNode $node, $attribute) {
+    $attr = $node->attributes->getNamedItem($attribute);
+    if (is_a($attr,'DOMAttr'))
+      return $attr->nodeValue;
   }
   
   protected function getFormNode($attribs=[]) {
