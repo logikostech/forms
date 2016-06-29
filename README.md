@@ -59,6 +59,9 @@ $loader->register();
 
 ## Key features
 
+### [Forms Class](docs/Form.md)
+Wrapper for [Phalcon\Forms\Form](https://github.com/phalcon/cphalcon/blob/master/phalcon/forms/form.zep) which adds some additional [features](docs/Form.md).
+
 ### Radioset [Element](src/Element/Radioset.php) and [Tag](src/Tag/Radioset.php)
 
 Added [Logikos\Forms\Element\Radioset](Element/Radioset.php) which works like and extends [Phalcon\Forms\Element\Select](https://github.com/phalcon/cphalcon/blob/master/phalcon/forms/element/select.zep) and works the same way except that it outputs radio options instead of a select box.  Resulting radio tag option markup can be controlled by setting [Logikos\Forms\Tag\Radioset](Tag/Radioset.php)::useRadioTemplate()
