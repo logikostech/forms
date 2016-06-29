@@ -64,7 +64,7 @@ Wrapper for [Phalcon\Forms\Form](https://github.com/phalcon/cphalcon/blob/master
 
 ### Radioset [Element](src/Element/Radioset.php) and [Tag](src/Tag/Radioset.php)
 
-Added [Logikos\Forms\Element\Radioset](Element/Radioset.php) which works like and extends [Phalcon\Forms\Element\Select](https://github.com/phalcon/cphalcon/blob/master/phalcon/forms/element/select.zep) and works the same way except that it outputs radio options instead of a select box.  Resulting radio tag option markup can be controlled by setting [Logikos\Forms\Tag\Radioset](Tag/Radioset.php)::useRadioTemplate()
+Added [Logikos\Forms\Element\Radioset](src/Element/Radioset.php) which works like and extends [Phalcon\Forms\Element\Select](https://github.com/phalcon/cphalcon/blob/master/phalcon/forms/element/select.zep) and works the same way except that it outputs radio options instead of a select box.  Resulting radio tag option markup can be controlled by setting [Logikos\Forms\Tag\Radioset](src/Tag/Radioset.php)::useRadioTemplate()
 
 ### [SelectOptions](SelectOptions.php)
 
