@@ -1,8 +1,6 @@
 # Logikos\Forms
 Form manager which extends Phalcon PHP
 
-Please note that this is **NOT** yet a stable repo.  Once a stable release is available I will create a version tag for it.
-
 ## Installation
 
 ### Installing via Composer
