@@ -24,11 +24,11 @@ Returns String form close tag
 #### getElementNames() Method
 Returns Array of all element names.
 
-#### addElement(ElementInterface `$element`, Array `$attributes`, String `$label`)
+#### addElement(ElementInterface `$element`, String `$label`, Array `$attributes`)
 This method just does the $element->setAttributes() and setLabel() for you before doing a `$form->add($element)`.
 Considering your often going to want to set a label and attributes for the elements.
 ```php
-$form->addElement(new Phalcon\Forms\Element\Text, ['class'=>'foobar'], $label);
+$form->addElement(new Phalcon\Forms\Element\Text, $label, ['class'=>'foobar']);
 ```
 
 #### RenderDecorated(String `$name`, Array `$attributes=null`, String `$template=null`)
