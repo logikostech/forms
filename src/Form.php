@@ -37,11 +37,13 @@ class Form extends phForm {
   }
   public function setDecorationTemplate($template) {
     $this->setUserOption('decoration_template',$template);
+    return $this;
   }
   
   public function addClass($class) {
     if (!in_array($class,$this->_formTagClass))
       $this->_formTagClass[] = $class;
+    return $this;
   }
   
   
@@ -120,6 +122,7 @@ class Form extends phForm {
         $this->setAttribute($k, $v);
       }
     }
+    return $this;
   }
   public function getAttributes() {
     $attrs = $this->_attributes;
@@ -150,6 +153,7 @@ class Form extends phForm {
    */
   public function setView(ViewBaseInterface $view) {
     $this->view = $view;
+    return $this;
   }
   public function getView() {
     if (isset($this->view) && $this->view instanceof ViewBaseInterface)
@@ -196,6 +200,7 @@ class Form extends phForm {
     $element = $this->get($name);
     $element->appendMessage(new \Phalcon\Validation\Message($message));
     $this->_messages[$name] = $element->getMessages();
+    return $this;
   }
   
   public function import($import,$whitelist=null) {
@@ -208,6 +213,7 @@ class Form extends phForm {
     }
     
     $this->bind($import,$this->getEntity(),$whitelist);
+    return $this;
   }
   
   public function getElementNames() {
@@ -225,6 +231,7 @@ class Form extends phForm {
     $element->setAttributes($attributes);
     $element->setLabel($label);
     $this->add($element);
+    return $this;
   }
   
 }
