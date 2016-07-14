@@ -19,7 +19,7 @@
     "require": {
         "php": ">=5.4",
         "ext-phalcon": "^2.0",
-        "logikostech/common": "^1.0"
+        "logikostech/common": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.0"
