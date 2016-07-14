@@ -225,10 +225,11 @@ class Form extends phForm {
     return $names;
   }
   
-  public function addElement(ElementInterface $element, $label, $attributes) {
+  public function addElement(ElementInterface $element, $label, $attributes=null) {
     if (!isset($attributes['id']))
       $attributes['id'] = null;
-    $element->setAttributes($attributes);
+    if (!is_null($attributes))
+      $element->setAttributes($attributes);
     $element->setLabel($label);
     $this->add($element);
     return $this;
