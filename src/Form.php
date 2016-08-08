@@ -27,6 +27,10 @@ class Form extends phForm {
   public function __construct($entity=null,$userOptions=null) {
     parent::__construct($entity,$userOptions);
     $this->_setDefaultUserOptions($this->_defaultUserOptions);
+  
+    if (method_exists($this, "onConstruct")) {
+      $this->{"onConstruct"}();
+    }
   }
 
   protected function _setDefaultUserOptions($options) {
@@ -226,10 +230,12 @@ class Form extends phForm {
   }
   
   public function addElement(ElementInterface $element, $label, $attributes=null) {
-    if (!isset($attributes['id']))
+    if (is_array($attributes) && !isset($attributes['id'])) {
       $attributes['id'] = null;
-    if (!is_null($attributes))
+    }
+    if (!is_null($attributes)) {
       $element->setAttributes($attributes);
+    }
     $element->setLabel($label);
     $this->add($element);
     return $this;

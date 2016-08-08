@@ -136,8 +136,8 @@ class FormTest extends \PHPUnit_Framework_TestCase {
     $label = 'First Name';
     $this->form->addElement(
         new Text('fname'),
-        ['data-foo'=>'bar'],
-        $label
+        $label,
+        ['data-foo'=>'bar']
     );
     $element = $this->form->get('fname');
     $this->assertEquals($label, $element->getLabel());
